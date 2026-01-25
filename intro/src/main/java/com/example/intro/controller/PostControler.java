@@ -1,28 +1,21 @@
- package com.example.intro.controller;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
+package com.example.intro.controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "*") 
 public class PostControler {
     @PostMapping("/api/first")
     public String createUser(@RequestBody User user){
         System.out.print(user);
         return "";
     }
-
 }
-
 
 class User {
     private String name;
     private String email;
-
     public User() {} // default constructor
-
     public User(String name, String email) {
         this.name = name;
         this.email = email;
