@@ -1,7 +1,5 @@
 package com.example.__methods.controllers;
-
 import java.util.Map;
-
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +22,13 @@ public class UserControllers {
         System.out.println(payload);
         return Map.of("name", "manoj rawat");
     }
+
     @PutMapping("/api/user/{id}")
     public Map<String, String> putData(@PathVariable("id") int userId) {
         System.out.println(userId);
         return Map.of("name", "manoj rawat");
     }
+
     @DeleteMapping("/api/user")
     public Map<String, String> deleteData(@RequestBody Map<String, Object> payload) {
         System.out.println(payload);
