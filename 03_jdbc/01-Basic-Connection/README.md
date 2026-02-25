@@ -5,4 +5,3 @@ This module covers:
 - Establishing connection
 - Executing simple queries
 - Closing resources
-
