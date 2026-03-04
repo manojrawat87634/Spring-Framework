@@ -1,0 +1,10 @@
+1️⃣ CRUD + JPA ✅ (You did)
+2️⃣ Service Layer + Transactions ✅ (You did)
+3️⃣ 🔐 Authentication (NEXT STEP)
+4️⃣ Role-based Authorization
+5️⃣ DTO + Global Exception Handling
+6️⃣ File Upload Handling
+7️⃣ Pagination + Filtering
+8️⃣ Logging (SLF4J)
+9️⃣ Docker
+🔟 Deployment

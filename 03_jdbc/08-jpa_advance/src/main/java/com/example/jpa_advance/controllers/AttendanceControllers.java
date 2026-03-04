@@ -13,6 +13,8 @@ import com.example.jpa_advance.models.Attendance;
 import com.example.jpa_advance.models.EmployeeModel;
 import com.example.jpa_advance.repository.AttendanceRepo;
 
+import jakarta.transaction.Transactional;
+
 @RestController
 @CrossOrigin(origins = "*")
 public class AttendanceControllers {
@@ -28,6 +30,7 @@ public class AttendanceControllers {
     }
 
     @PostMapping("/api/attendance/{id}")
+    @Transactional
     public Attendance postAttendance(
             @RequestBody Attendance request,
             @PathVariable Integer id) {
