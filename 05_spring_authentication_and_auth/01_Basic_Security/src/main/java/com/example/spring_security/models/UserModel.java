@@ -15,20 +15,20 @@ import jakarta.persistence.UniqueConstraint;
 public class UserModel{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(unique = true)
     private String email;
     @Column()
     private String password;
     @Column()
-    private boolean isActive;
+    private Boolean isActive;
 
       public UserModel() {
         this.isActive = true; // default active
     }
 
     //  All-args constructor (optional)
-    public UserModel(int id, String email, String password, boolean isActive) {
+    public UserModel(Integer id, String email, String password, Boolean isActive) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -36,11 +36,11 @@ public class UserModel{
     }
 
     //  Getters and Setters
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -60,11 +60,11 @@ public class UserModel{
         this.password = password;
     }
 
-    public boolean isActive() {
+    public Boolean isActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 }
