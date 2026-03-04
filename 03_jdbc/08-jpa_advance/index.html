@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Test</title>
+</head>
+<body>
+
+<h2>Get All Attendance</h2>
+<button onclick="getAttendance()">Load Attendance</button>
+<pre id="getResult"></pre>
+
+<hr>
+
+<h2>Save Attendance</h2>
+
+<label>Employee ID:</label>
+<input type="number" id="employeeId" /><br><br>
+
+<label>Date:</label>
+<input type="date" id="attendanceDate" /><br><br>
+
+<label>Check In:</label>
+<input type="time" id="checkIn" /><br><br>
+
+<label>Check Out:</label>
+<input type="time" id="checkOut" /><br><br>
+
+<label>Status:</label>
+<select id="status">
+    <option value="Present">Present</option>
+    <option value="Absent">Absent</option>
+    <option value="Leave">Leave</option>
+    <option value="Half_Day">Half_Day</option>
+    <option value="WFH">WFH</option>
+</select>
+
+<br><br>
+<button onclick="saveAttendance()">Save Attendance</button>
+
+<pre id="postResult"></pre>
+
+<script>
+
+// GET attendance
+function getAttendance() {
+    fetch("http://localhost:8080/api/attendance")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("getResult").innerText =
+                JSON.stringify(data, null, 2);
+        })
+        .catch(error => console.error(error));
+}
+
+
+// POST attendance
+function saveAttendance() {
+
+    const employeeId = document.getElementById("employeeId").value;
+
+    const data = {
+        attendanceDate: document.getElementById("attendanceDate").value,
+        checkIn: document.getElementById("checkIn").value,
+        checkOut: document.getElementById("checkOut").value,
+        status: document.getElementById("status").value
+    };
+    console.log(data)
+    fetch("http://localhost:8080/api/attendance/1" , {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("postResult").innerText =
+            JSON.stringify(data, null, 2);
+    })
+    .catch(error => console.error(error));
+}
+
+</script>
+
+</body>
+</html>
