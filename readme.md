@@ -1,5 +1,5 @@
 # 🚀 Java Spring Boot – VVIP Topics (API Developer Only)
-## 1️⃣ Core Java (Only What Backend Needs)
+## 1 Core Java (Only What Backend Needs)
 1. OOP Concepts
 2. Exception Handling
 3. Collections (List, Set, Map)
@@ -10,7 +10,7 @@
 8. Comparable & Comparator
 ---
 
-## 2️⃣ Spring Boot Core (Must Master)
+## 2 Spring Boot Core (Must Master)
 1. Spring Boot Architecture
 2. Dependency Injection
 3. REST Controller
@@ -24,7 +24,7 @@
 11. Logging
 ---
 
-## 3️⃣ Database & JPA (Very Important)
+## 3 Database & JPA (Very Important)
 
 1. JPA & Hibernate
 2. Entity Mapping
@@ -38,7 +38,7 @@
 
 ---
 
-## 4️⃣ Spring Security (VVIP for Jobs)
+## 4 Spring Security (VVIP for Jobs)
 
 1. Authentication
 2. Authorization
@@ -49,7 +49,7 @@
 
 ---
 
-## 5️⃣ Production-Level Topics
+## 5 Production-Level Topics
 
 1. DTO Pattern
 2. ModelMapper / Manual Mapping
