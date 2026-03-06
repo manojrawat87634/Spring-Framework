@@ -10,13 +10,11 @@ import com.example.basic.repo.UserRepo;
 
 @Service
 public class UserService implements UserDetailsService {
-
     @Autowired
     private UserRepo userRepo;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
         UserModel user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 

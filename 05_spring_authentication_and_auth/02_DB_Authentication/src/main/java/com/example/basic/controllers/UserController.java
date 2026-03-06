@@ -2,8 +2,6 @@ package com.example.basic.controllers;
 
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 // import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +14,13 @@ import com.example.basic.repo.UserRepo;
 
 @RestController
 public class UserController {
-    @Autowired
-    private UserRepo userRepo;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+   private final PasswordEncoder passwordEncoder;
+    private final UserRepo userRepo;
+
+    public UserController(PasswordEncoder passwordEncoder, UserRepo userRepo){
+        this.passwordEncoder = passwordEncoder;
+        this.userRepo = userRepo;
+    }
     @PostMapping("/api/register")
     Map<String, String> registerUser(@RequestBody UserModel user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
