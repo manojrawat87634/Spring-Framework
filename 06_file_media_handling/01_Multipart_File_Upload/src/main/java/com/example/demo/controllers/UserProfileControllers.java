@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin(origins = "*")
 public class UserProfileControllers {
     private final String uploadDir = "uploads/";
-
     @PostMapping("/api/user-profile")
     ResponseEntity<String> postUserImg(@RequestParam("file") MultipartFile file) {
 
