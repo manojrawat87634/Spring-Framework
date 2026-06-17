@@ -21,14 +21,17 @@ public class EmployeeController {
      EmployeeController(EmployeeRepository employeeRepository){
         this.employeeRepository = employeeRepository;
      }
-        @GetMapping("/employee")
+        
+     @GetMapping("/employee")
         List<Employee> getEmployeesController(){
             return employeeRepository.getEmployees();
         };
+
         @PostMapping("/employee")
         public int addEmployeeController(@RequestBody Employee emp){
             return employeeRepository.addEmployee(emp);
         }
+
         @PutMapping("/employee/{id}")
         public int editEmployee(@PathVariable int id, @RequestBody Employee emp){
             return employeeRepository.editEmployee(emp, id);

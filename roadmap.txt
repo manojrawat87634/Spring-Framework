@@ -1,10 +1,35 @@
-1️⃣ CRUD + JPA ✅ (You did)
-2️⃣ Service Layer + Transactions ✅ (You did)
-3️⃣ 🔐 Authentication (NEXT STEP)
-4️⃣ Role-based Authorization
-5️⃣ DTO + Global Exception Handling
-6️⃣ File Upload Handling
-7️⃣ Pagination + Filtering
-8️⃣ Logging (SLF4J)
-9️⃣ Docker
-🔟 Deployment
+[ ] Sessions & Cookies
+[ ] OAuth2
+[ ] RBAC
+[ ] API Design
+[ ] Validation
+[ ] Security
+[ ] Indexing
+[ ] Transactions
+[ ] Isolation Levels
+[ ] Query Optimization
+[ ] Redis
+[ ] Rate Limiting
+[ ] Distributed Cache
+[ ] RabbitMQ
+[ ] Kafka
+[ ] Event Driven Architecture
+[ ] File Storage
+[ ] CDN
+[ ] Payment Systems
+[ ] Webhooks
+[ ] Refunds
+[ ] Scalability
+[ ] Load Balancing
+[ ] CAP Theorem
+[ ] Distributed Systems
+[ ] Logging
+[ ] Monitoring
+[ ] Docker
+[ ] Nginx
+[ ] Cloud Basics
+[ ] Monolith
+[ ] Microservices
+[ ] DDD
+[ ] CQRS
+[ ] Clean Architecture
