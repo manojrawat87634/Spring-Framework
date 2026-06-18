@@ -20,14 +20,16 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-     @Bean
+
+    @Bean
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
 
-        return config.getAuthenticationManager();
+    return config.getAuthenticationManager();
     }
 }
