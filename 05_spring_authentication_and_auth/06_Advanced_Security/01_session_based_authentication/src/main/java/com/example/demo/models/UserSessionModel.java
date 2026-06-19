@@ -18,11 +18,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "user_sessions")
 public class UserSessionModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     // Many sessions can belong to one user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

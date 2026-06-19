@@ -17,7 +17,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()) ;
-
         return http.build();
     }
 
@@ -29,7 +28,6 @@ public class SecurityConfig {
     @Bean
     AuthenticationManager authenticationManager(
             AuthenticationConfiguration config) throws Exception {
-
-    return config.getAuthenticationManager();
+        return config.getAuthenticationManager();
     }
 }

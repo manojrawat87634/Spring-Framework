@@ -15,7 +15,6 @@
 
 // import com.example.demo.models.UserModel;
 // import com.example.demo.repo.UserRepo;
-// // import com.example.demo.service.UserService;
 // import com.example.demo.utils.JwtUtil;
 
 // @RestController
