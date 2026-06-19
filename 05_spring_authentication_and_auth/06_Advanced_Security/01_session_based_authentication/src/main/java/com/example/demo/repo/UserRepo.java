@@ -9,4 +9,5 @@ import com.example.demo.models.UserModel;
 @Repository
 public interface UserRepo extends JpaRepository<UserModel, Long> {
   Optional<UserModel> findByEmail(String email);    
+  boolean existsByEmail(String email);    
 }

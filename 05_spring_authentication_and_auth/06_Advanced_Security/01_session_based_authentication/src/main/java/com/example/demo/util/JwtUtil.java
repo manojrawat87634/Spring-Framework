@@ -11,9 +11,11 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     private final String SECRET = "mysupersecretkeymysupersecretkeymysupersecretkey123";
+    
     private SecretKey getSignKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
+
     public String generateToken(String username) {
         return Jwts.builder()
                 .subject(username)
@@ -22,5 +24,4 @@ public class JwtUtil {
                 .signWith(getSignKey())
                 .compact();
     }
-    
 }
