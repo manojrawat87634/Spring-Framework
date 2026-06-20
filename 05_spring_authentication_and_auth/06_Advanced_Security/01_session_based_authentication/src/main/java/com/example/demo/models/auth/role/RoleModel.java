@@ -14,7 +14,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class RoleModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -118,4 +118,63 @@ public class UserAuthService {
                 "refreshToken", refreshToken
         );
     }
+
+    public Map<String, String> refreshToken(String refreshToken) {
+
+    UserSessionModel session = sessionRepo
+            .findByRefreshToken(refreshToken)
+            .orElseThrow(() ->
+                    new RuntimeException("Invalid refresh token"));
+
+    if (session.getIsRevoked()) {
+        throw new RuntimeException("Refresh token revoked");
+    }
+
+    if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
+        throw new RuntimeException("Refresh token expired");
+    }
+
+    UserModel user = session.getUser();
+
+    List<String> roles =
+            userRoleRepo.findRoleNamesByUserId(user.getId());
+
+    // Rotate session id
+    String newSessionId = UUID.randomUUID().toString();
+
+    String newAccessToken =
+            jwtUtil.generateAccessToken(
+                    user.getId(),
+                    newSessionId,
+                    roles);
+
+    String newRefreshToken =
+            jwtUtil.generateRefreshToken(newSessionId);
+
+    // Revoke old token
+    session.setIsRevoked(true);
+    sessionRepo.save(session);
+
+    // Create new session
+    UserSessionModel newSession = new UserSessionModel();
+
+    newSession.setUser(user);
+    newSession.setSessionId(newSessionId);
+    newSession.setRefreshToken(newRefreshToken);
+    newSession.setIpAddress(session.getIpAddress());
+    newSession.setUserAgent(session.getUserAgent());
+    newSession.setDeviceName(session.getDeviceName());
+
+    newSession.setLoginAt(LocalDateTime.now());
+    newSession.setLastActivity(LocalDateTime.now());
+    newSession.setExpiresAt(LocalDateTime.now().plusDays(7));
+    newSession.setIsRevoked(false);
+
+    sessionRepo.save(newSession);
+
+    return Map.of(
+            "accessToken", newAccessToken,
+            "refreshToken", newRefreshToken
+    );
+}
 }
