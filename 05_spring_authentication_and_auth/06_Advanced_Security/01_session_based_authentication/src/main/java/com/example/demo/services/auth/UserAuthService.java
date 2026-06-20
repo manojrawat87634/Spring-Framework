@@ -1,6 +1,7 @@
 package com.example.demo.services.auth;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,10 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.auth.AuthRequest;
 import com.example.demo.helpers.RequestUtils;
-import com.example.demo.models.UserModel;
-import com.example.demo.models.UserSessionModel;
+import com.example.demo.models.auth.UserModel;
+import com.example.demo.models.auth.UserSessionModel;
+import com.example.demo.models.auth.role.RoleModel;
+import com.example.demo.models.auth.role.UserRoleModel;
 import com.example.demo.repo.auth.UserRepo;
 import com.example.demo.repo.auth.UserSessionRepo;
+import com.example.demo.repo.auth.role.RoleRepo;
+import com.example.demo.repo.auth.role.UserRoleRepo;
 import com.example.demo.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,10 +30,16 @@ public class UserAuthService {
     private UserRepo userRepo;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UserSessionRepo sessionRepo;
 
     @Autowired
-    private UserSessionRepo sessionRepo;
+    private RoleRepo roleRepo;
+
+    @Autowired
+    private UserRoleRepo userRoleRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -44,46 +55,57 @@ public class UserAuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepo.save(user);
+
+        // Assign default USER role
+        RoleModel role = roleRepo.findByName("student")
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+
+        UserRoleModel userRole = new UserRoleModel();
+        userRole.setUser(user);
+        userRole.setRole(role);
+
+        userRoleRepo.save(userRole);
     }
 
-    public Map<String, String> login(AuthRequest request, HttpServletRequest httpRequest) {
+    public Map<String, String> login(
+            AuthRequest request,
+            HttpServletRequest httpRequest) {
 
-        // 1. Find user
         UserModel user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        // 2. Verify password
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                user.getPassword())) {
+
             throw new RuntimeException("Invalid credentials");
         }
 
-        // 3. Client information
         String ipAddress = RequestUtils.getClientIp(httpRequest);
         String userAgent = RequestUtils.getUserAgent(httpRequest);
         String deviceName = RequestUtils.parseDevice(userAgent);
 
-        // 4. Create a new login session
         String sessionId = UUID.randomUUID().toString();
 
-        // 5. Generate tokens
-        String accessToken = jwtUtil.generateAccessToken(
-                user.getId(),
-                sessionId,
-                "USER" // Replace with user.getRole() if available
-        );
+        List<String> roles =
+                userRoleRepo.findRoleNamesByUserId(user.getId());
 
-        String refreshToken = jwtUtil.generateRefreshToken(sessionId);
+        String accessToken =
+                jwtUtil.generateAccessToken(
+                        user.getId(),
+                        sessionId,
+                        roles);
 
-        // 6. Save session
+        String refreshToken =
+                jwtUtil.generateRefreshToken(sessionId);
+
         UserSessionModel session = new UserSessionModel();
-
         session.setUser(user);
         session.setSessionId(sessionId);
-        session.setRefreshToken(refreshToken); // Later store a hash instead
+        session.setRefreshToken(refreshToken);
         session.setIpAddress(ipAddress);
         session.setUserAgent(userAgent);
         session.setDeviceName(deviceName);
-
         session.setLoginAt(LocalDateTime.now());
         session.setLastActivity(LocalDateTime.now());
         session.setExpiresAt(LocalDateTime.now().plusDays(7));
@@ -91,10 +113,9 @@ public class UserAuthService {
 
         sessionRepo.save(session);
 
-        // 7. Return tokens
         return Map.of(
                 "accessToken", accessToken,
-                "refreshToken", refreshToken);
+                "refreshToken", refreshToken
+        );
     }
-
 }

@@ -1,6 +1,7 @@
 package com.example.demo.util;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
@@ -30,21 +31,21 @@ public class JwtUtil {
     // ---------------- ACCESS TOKEN ----------------
 
     public String generateAccessToken(
-            Integer userId,
-            String sessionId,
-            String role) {
+        Long userId,
+        String sessionId,
+        List<String> roles) {
 
-        Date now = new Date();
+    Date now = new Date();
 
-        return Jwts.builder()
-                .subject(String.valueOf(userId))
-                .claim("sid", sessionId)
-                .claim("role", role)
-                .issuedAt(now)
-                .expiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRY))
-                .signWith(getSignKey())
-                .compact();
-    }
+    return Jwts.builder()
+            .subject(String.valueOf(userId))
+            .claim("sid", sessionId)
+            .claim("roles", roles)
+            .issuedAt(now)
+            .expiration(new Date(now.getTime() + ACCESS_TOKEN_EXPIRY))
+            .signWith(getSignKey())
+            .compact();
+}
 
     // ---------------- REFRESH TOKEN ----------------
 

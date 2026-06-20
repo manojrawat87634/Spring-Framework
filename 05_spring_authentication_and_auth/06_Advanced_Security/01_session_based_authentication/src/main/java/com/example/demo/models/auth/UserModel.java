@@ -1,4 +1,4 @@
-package com.example.demo.models;
+package com.example.demo.models.auth;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +29,7 @@ public class UserModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 255)
     private String email;

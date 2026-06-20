@@ -1,5 +1,5 @@
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id bigint AUTO_INCREMENT PRIMARY KEY,
 
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -20,9 +20,22 @@ CREATE TABLE roles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE user_roles (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (role_id)
+        REFERENCES roles(id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE user_sessions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id bigint NOT NULL,
     session_id VARCHAR(255) NOT NULL UNIQUE,
     refresh_token TEXT,
     ip_address VARCHAR(50),
