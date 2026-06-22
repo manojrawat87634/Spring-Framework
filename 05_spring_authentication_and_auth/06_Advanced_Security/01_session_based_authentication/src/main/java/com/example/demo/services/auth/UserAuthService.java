@@ -26,155 +26,155 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 public class UserAuthService {
 
-    @Autowired
-    private UserRepo userRepo;
+        @Autowired
+        private UserRepo userRepo;
 
-    @Autowired
-    private UserSessionRepo sessionRepo;
+        @Autowired
+        private UserSessionRepo sessionRepo;
 
-    @Autowired
-    private RoleRepo roleRepo;
+        @Autowired
+        private RoleRepo roleRepo;
 
-    @Autowired
-    private UserRoleRepo userRoleRepo;
+        @Autowired
+        private UserRoleRepo userRoleRepo;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+        @Autowired
+        private JwtUtil jwtUtil;
 
-    public void registerUser(AuthRequest request) {
+        public void registerUser(AuthRequest request) {
 
-        if (userRepo.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+                if (userRepo.existsByEmail(request.getEmail())) {
+                        throw new RuntimeException("Email already registered");
+                }
+
+                UserModel user = new UserModel();
+                user.setEmail(request.getEmail());
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+                userRepo.save(user);
+
+                // Assign default USER role
+                RoleModel role = roleRepo.findByName("student")
+                                .orElseThrow(() -> new RuntimeException("Default role not found"));
+
+                UserRoleModel userRole = new UserRoleModel();
+                userRole.setUser(user);
+                userRole.setRole(role);
+
+                userRoleRepo.save(userRole);
         }
 
-        UserModel user = new UserModel();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        public Map<String, String> login(
+                        AuthRequest request,
+                        HttpServletRequest httpRequest) {
 
-        userRepo.save(user);
+                UserModel user = userRepo.findByEmail(request.getEmail())
+                                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
-        // Assign default USER role
-        RoleModel role = roleRepo.findByName("student")
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
+                if (!passwordEncoder.matches(
+                                request.getPassword(),
+                                user.getPassword())) {
 
-        UserRoleModel userRole = new UserRoleModel();
-        userRole.setUser(user);
-        userRole.setRole(role);
+                        throw new RuntimeException("Invalid credentials");
+                }
 
-        userRoleRepo.save(userRole);
-    }
+                String ipAddress = RequestUtils.getClientIp(httpRequest);
+                String userAgent = RequestUtils.getUserAgent(httpRequest);
+                String deviceName = RequestUtils.parseDevice(userAgent);
 
-    public Map<String, String> login(
-            AuthRequest request,
-            HttpServletRequest httpRequest) {
+                String sessionId = UUID.randomUUID().toString();
 
-        UserModel user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                List<String> roles = userRoleRepo.findRoleNamesByUserId(user.getId());
 
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword())) {
+                String accessToken = jwtUtil.generateAccessToken(
+                                user.getId(),
+                                sessionId,
+                                roles);
 
-            throw new RuntimeException("Invalid credentials");
+                String refreshToken = jwtUtil.generateRefreshToken(sessionId);
+
+                UserSessionModel session = new UserSessionModel();
+                session.setUser(user);
+                session.setSessionId(sessionId);
+                session.setRefreshToken(refreshToken);
+                session.setIpAddress(ipAddress);
+                session.setUserAgent(userAgent);
+                session.setDeviceName(deviceName);
+                session.setLoginAt(LocalDateTime.now());
+                session.setLastActivity(LocalDateTime.now());
+                session.setExpiresAt(LocalDateTime.now().plusDays(7));
+                session.setIsRevoked(false);
+
+                sessionRepo.save(session);
+
+                return Map.of(
+                                "accessToken", accessToken,
+                                "refreshToken", refreshToken);
         }
 
-        String ipAddress = RequestUtils.getClientIp(httpRequest);
-        String userAgent = RequestUtils.getUserAgent(httpRequest);
-        String deviceName = RequestUtils.parseDevice(userAgent);
+        public Map<String, String> refreshToken(String refreshToken) {
 
-        String sessionId = UUID.randomUUID().toString();
+                UserSessionModel session = sessionRepo
+                                .findByRefreshToken(refreshToken)
+                                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
 
-        List<String> roles =
-                userRoleRepo.findRoleNamesByUserId(user.getId());
+                if (session.getIsRevoked()) {
+                        throw new RuntimeException("Refresh token revoked");
+                }
 
-        String accessToken =
-                jwtUtil.generateAccessToken(
-                        user.getId(),
-                        sessionId,
-                        roles);
+                if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
+                        throw new RuntimeException("Refresh token expired");
+                }
 
-        String refreshToken =
-                jwtUtil.generateRefreshToken(sessionId);
+                UserModel user = session.getUser();
 
-        UserSessionModel session = new UserSessionModel();
-        session.setUser(user);
-        session.setSessionId(sessionId);
-        session.setRefreshToken(refreshToken);
-        session.setIpAddress(ipAddress);
-        session.setUserAgent(userAgent);
-        session.setDeviceName(deviceName);
-        session.setLoginAt(LocalDateTime.now());
-        session.setLastActivity(LocalDateTime.now());
-        session.setExpiresAt(LocalDateTime.now().plusDays(7));
-        session.setIsRevoked(false);
+                List<String> roles = userRoleRepo.findRoleNamesByUserId(user.getId());
 
-        sessionRepo.save(session);
+                // Rotate session id
+                String newSessionId = UUID.randomUUID().toString();
 
-        return Map.of(
-                "accessToken", accessToken,
-                "refreshToken", refreshToken
-        );
-    }
+                String newAccessToken = jwtUtil.generateAccessToken(
+                                user.getId(),
+                                newSessionId,
+                                roles);
 
-    public Map<String, String> refreshToken(String refreshToken) {
+                String newRefreshToken = jwtUtil.generateRefreshToken(newSessionId);
 
-    UserSessionModel session = sessionRepo
-            .findByRefreshToken(refreshToken)
-            .orElseThrow(() ->
-                    new RuntimeException("Invalid refresh token"));
+                // Revoke old token
+                session.setIsRevoked(true);
+                sessionRepo.save(session);
 
-    if (session.getIsRevoked()) {
-        throw new RuntimeException("Refresh token revoked");
-    }
+                // Create new session
+                UserSessionModel newSession = new UserSessionModel();
 
-    if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
-        throw new RuntimeException("Refresh token expired");
-    }
+                newSession.setUser(user);
+                newSession.setSessionId(newSessionId);
+                newSession.setRefreshToken(newRefreshToken);
+                newSession.setIpAddress(session.getIpAddress());
+                newSession.setUserAgent(session.getUserAgent());
+                newSession.setDeviceName(session.getDeviceName());
 
-    UserModel user = session.getUser();
+                newSession.setLoginAt(LocalDateTime.now());
+                newSession.setLastActivity(LocalDateTime.now());
+                newSession.setExpiresAt(LocalDateTime.now().plusDays(7));
+                newSession.setIsRevoked(false);
 
-    List<String> roles =
-            userRoleRepo.findRoleNamesByUserId(user.getId());
+                sessionRepo.save(newSession);
 
-    // Rotate session id
-    String newSessionId = UUID.randomUUID().toString();
+                return Map.of(
+                                "accessToken", newAccessToken,
+                                "refreshToken", newRefreshToken);
+        }
 
-    String newAccessToken =
-            jwtUtil.generateAccessToken(
-                    user.getId(),
-                    newSessionId,
-                    roles);
+        public void logout(Long sessionId) {
+                UserSessionModel session = sessionRepo.findBySessionId(sessionId)
+                                .orElseThrow(() -> new RuntimeException("Session not found"));
 
-    String newRefreshToken =
-            jwtUtil.generateRefreshToken(newSessionId);
+                session.setIsRevoked(true);
 
-    // Revoke old token
-    session.setIsRevoked(true);
-    sessionRepo.save(session);
-
-    // Create new session
-    UserSessionModel newSession = new UserSessionModel();
-
-    newSession.setUser(user);
-    newSession.setSessionId(newSessionId);
-    newSession.setRefreshToken(newRefreshToken);
-    newSession.setIpAddress(session.getIpAddress());
-    newSession.setUserAgent(session.getUserAgent());
-    newSession.setDeviceName(session.getDeviceName());
-
-    newSession.setLoginAt(LocalDateTime.now());
-    newSession.setLastActivity(LocalDateTime.now());
-    newSession.setExpiresAt(LocalDateTime.now().plusDays(7));
-    newSession.setIsRevoked(false);
-
-    sessionRepo.save(newSession);
-
-    return Map.of(
-            "accessToken", newAccessToken,
-            "refreshToken", newRefreshToken
-    );
-}
+                sessionRepo.save(session);
+        }
 }

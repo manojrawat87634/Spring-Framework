@@ -12,4 +12,5 @@ import com.example.demo.models.auth.UserSessionModel;
 @Repository
 public interface UserSessionRepo extends JpaRepository<UserSessionModel, Long> {
   Optional<UserSessionModel> findByRefreshToken(String refreshToken);
+  Optional<UserSessionModel>findBySessionId(Long sessionId);
 }

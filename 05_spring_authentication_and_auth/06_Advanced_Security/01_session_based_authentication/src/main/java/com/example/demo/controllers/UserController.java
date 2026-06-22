@@ -40,4 +40,11 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+public ResponseEntity<String> logout(@RequestParam Long sessionId) {
+    userAuthService.logout(sessionId);
+
+    return ResponseEntity.ok("Logged out successfully");
+}
 }
