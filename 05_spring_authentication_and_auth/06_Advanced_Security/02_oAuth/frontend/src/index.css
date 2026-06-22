@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+/* Customize the scrollbar width */
+::-webkit-scrollbar {
+width: 5px;
+height:1900px;
+}
+
+/* Style the track (background) */
+::-webkit-scrollbar-track {
+background: #f1f1f1;
+}
+
+/* Style the thumb (draggable handle) */
+::-webkit-scrollbar-thumb {
+background: #888;
+border-radius: 6px;
+}
+
+/* Change thumb color on hover */
+::-webkit-scrollbar-thumb:hover {
+background: #555;
+}
