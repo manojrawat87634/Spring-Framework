@@ -43,3 +43,7 @@ Thumbs.db
 # Others
 # =========================
 **/out/
+
+
+**/node_modules/
+**/application.properties
